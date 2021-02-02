@@ -1,12 +1,13 @@
-from gameManager import ChessGame, GameManager
-
+import uuid
+from Chessnut.game import InvalidMove
 
 import sanic
 from sanic import response
-from sanic.websocket import WebSocketProtocol
 from sanic.request import Request
-import uuid
+
 from classes import GameOptions
+from gameManager import GameManager
+from uuid import UUID
 
 app = sanic.Sanic(name="Neos Chess Websocket")
 gm = GameManager()
@@ -19,9 +20,22 @@ async def new_game(request: Request):
     """
     opts = GameOptions(**request.json)
 
-    uid = str(uuid.uuid4())
+    uid = uuid.uuid4()
     gm.start_game(uid, opts)
-    return response.text(uid)
+    move = ""
+    if opts.ai_is_white is None:
+        move = await gm.do_ai_move(uid)
+    return response.text(f"{uid}{move}")
+
+
+@app.route("/move/<uid:uuid>/<move:[a-h][1-8][a-h][1-8]>", methods=["POST"])
+async def move(request: Request, uid: UUID, move: str):
+    if uid not in gm.games:
+        return response.text("invalid game ID", 400)
+    try:
+        return response.text(await gm.make_move(uid, move))
+    except InvalidMove:
+        return response.text("invalid move", 400)
 
 
 # @app.route("/debug")

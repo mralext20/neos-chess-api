@@ -1,58 +1,56 @@
-from classes import GameOptions
-from stockfish import Stockfish
-from Chessnut import Game as Game
-from typing import Dict
-from dataclasses import dataclass
 import asyncio
 from functools import partial
-
-
-@dataclass
-class ChessGame:
-    in_use = asyncio.Lock()
-    game: Game = Game()
-    against_computer: bool = True
-    opts: GameOptions = GameOptions()
+from typing import Dict, Optional
+from uuid import UUID
+from stockfish import Stockfish
+import stockfish
+import sys
+from classes import ChessGame, GameOptions
 
 
 class GameManager:
-    games: Dict[str, ChessGame] = {}
-    stockfish = Stockfish("./bin/stockfish")
+    def __init__(self) -> None:
+        path = "stockfish.exe" if sys.platform == "win32" else "stockfish"
+        try:
+            self.stockfish = Stockfish(path)
+        except FileNotFoundError:
+            print(f"cannot find stockfish executable. try putting one as `{path}` in the path")
+            exit(-1)
+
+    games: Dict[UUID, ChessGame] = {}
     stockfish_lock = asyncio.Lock()
 
-    def start_game(
-        self, uid: str, opts: GameOptions, use_stockfish: bool = True
-    ) -> ChessGame:
-        if not use_stockfish:
-            raise NotImplementedError(
-                "not using stockfish is not currently implimented"
-            )
+    def start_game(self, uid: UUID, opts: GameOptions) -> ChessGame:
+        if opts.ai_is_white is None:
+            raise NotImplementedError("not using stockfish is not currently implimented")
         self.games[uid] = ChessGame()
         return self.games[uid]
 
-    async def make_move(self, id: str, move: str) -> bool:
+    async def make_move(self, uid: UUID, move: str) -> Optional[str]:
         """
-        returns weather the move was made or not (i.e. if the move is valid)
+        returns the move the computer makes in response, or None if against another player.
+        raises InvalidMove when the move is Invalid.
         """
-        game = self.games[id]
-        if move not in game.get_moves():
-            return False
-        game.apply_move(move)
-        return await self._do_ai_move(id)
+        game = self.games[uid]
+        game.game.apply_move(move)
+        if game.game.status == game.game.CHECKMATE:
+            del self.games[uid]
+            return
 
-    def get_game(self, id: str) -> ChessGame:
-        return self.games[id]
+        if game.opts.ai_is_white is not None:
+            move = await self.do_ai_move(uid)
+            if game.game.status == game.game.CHECKMATE:
+                del self.games[uid]
+            return move
 
-    async def _do_ai_move(self, id: str) -> str:
+    async def do_ai_move(self, id: UUID) -> str:
         """
-        has the AI do a move, then returns it.
+        has the AI do a move, applying it, then returns it.
         """
         game = self.games[id]
         async with self.stockfish_lock:
             loop = asyncio.get_running_loop()
-            await loop.run_in_executor(
-                partial(self.stockfish.set_fen_position, game.game.get_fen())
-            )
+            await loop.run_in_executor(partial(self.stockfish.set_fen_position, game.game.get_fen()))
             move = await loop.run_in_executor(self.stockfish.get_best_move_time)
         game.game.apply_move(move)
         return move

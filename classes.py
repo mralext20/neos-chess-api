@@ -1,9 +1,15 @@
 from dataclasses import dataclass
-
-from typing import Union
+from typing import Optional
+from Chessnut import Game as Game
 
 
 @dataclass
 class GameOptions:
-    ai_is_white: bool = False
+    ai_is_white: Optional[bool] = False
     ai_diff: int = 10
+
+
+@dataclass
+class ChessGame:
+    game: Game = Game()
+    opts: GameOptions = GameOptions()
