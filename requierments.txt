@@ -1,2 +1,2 @@
 stockfish
-chessnut
+Chessnut
