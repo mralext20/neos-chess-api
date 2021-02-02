@@ -33,13 +33,13 @@ class GameManager:
         """
         game = self.games[uid]
         game.game.apply_move(move)
-        if game.game.status == game.game.CHECKMATE:
+        if game.game.status == game.game.CHECKMATE or game.game.status == game.game.STALEMATE:
             del self.games[uid]
             return
 
         if game.opts.ai_is_white is not None:
             move = await self.do_ai_move(uid)
-            if game.game.status == game.game.CHECKMATE:
+            if game.game.status == game.game.CHECKMATE or game.game.status == game.game.STALEMATE:
                 del self.games[uid]
             return move
 
