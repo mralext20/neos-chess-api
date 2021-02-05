@@ -38,6 +38,14 @@ async def move(request: Request, uid: UUID, move: str):
         return response.text("invalid move", 400)
 
 
+@app.route("/endgame/<uid:uuid>")
+async def endgame(request: Request, uid: UUID):
+    if uid not in gm.games:
+        return response.text("invalid game ID", 400)
+    del gm.games[uid]
+    return response.text("deleted")
+
+
 # @app.route("/debug")
 # async def debug(request: Request):
 #     pass
