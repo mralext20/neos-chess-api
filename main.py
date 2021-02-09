@@ -23,9 +23,9 @@ async def new_game(request: Request):
     uid = uuid.uuid4()
     gm.start_game(uid, opts)
     move = ""
-    if opts.ai_is_white is None:
+    if not opts.ai_is_white:
         move = await gm.do_ai_move(uid)
-    return response.text(f"{uid}{move}")
+    return response.text(f"{uid} {move}")
 
 
 @app.route("/move/<uid:uuid>/<move:[a-h][1-8][a-h][1-8]>", methods=["POST"])
