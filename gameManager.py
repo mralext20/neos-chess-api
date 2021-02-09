@@ -10,11 +10,11 @@ from classes import ChessGame, GameOptions
 
 class GameManager:
     def __init__(self) -> None:
-        path = "stockfish.exe" if sys.platform == "win32" else "stockfish"
+        self.path = "stockfish.exe" if sys.platform == "win32" else "stockfish"
         try:
-            self.stockfish = Stockfish(path)
+            Stockfish(self.path)
         except FileNotFoundError:
-            print(f"cannot find stockfish executable. try putting one as `{path}` in the path")
+            print(f"cannot find stockfish executable. try putting one as `{self.path}` in the path")
             exit(-1)
 
     games: Dict[UUID, ChessGame] = {}
@@ -48,10 +48,10 @@ class GameManager:
         has the AI do a move, applying it, then returns it.
         """
         game = self.games[id]
-        async with self.stockfish_lock:
-            loop = asyncio.get_running_loop()
-            await loop.run_in_executor(None, partial(self.stockfish.set_fen_position, game.game.get_fen()))
-            await loop.run_in_executor(None, partial(self.stockfish.set_skill_level, game.opts.ai_diff))
-            move = await loop.run_in_executor(None, self.stockfish.get_best_move_time)
+        loop = asyncio.get_running_loop()
+        stockfish = Stockfish()
+        await loop.run_in_executor(None, partial(stockfish.set_fen_position, game.game.get_fen()))
+        await loop.run_in_executor(None, partial(stockfish.set_skill_level, game.opts.ai_diff))
+        move = await loop.run_in_executor(None, stockfish.get_best_move_time)
         game.game.apply_move(move)
         return move
