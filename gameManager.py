@@ -51,6 +51,7 @@ class GameManager:
         async with self.stockfish_lock:
             loop = asyncio.get_running_loop()
             await loop.run_in_executor(None, partial(self.stockfish.set_fen_position, game.game.get_fen()))
+            await loop.run_in_executor(None, partial(self.stockfish.set_skill_level, game.opts.ai_diff))
             move = await loop.run_in_executor(None, self.stockfish.get_best_move_time)
         game.game.apply_move(move)
         return move
