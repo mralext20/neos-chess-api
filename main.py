@@ -5,6 +5,8 @@ import sanic
 from sanic import response
 from sanic.request import Request
 
+from config import default_port
+
 from classes import GameOptions
 from gameManager import GameManager
 from uuid import UUID
@@ -58,4 +60,5 @@ async def board(request: Request, uid: UUID):
     return response.text(gm.games[uid].game.get_fen())
 
 
-app.run()
+if __name__ == "__main__":
+    app.run(port=default_port)
