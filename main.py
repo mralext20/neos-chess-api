@@ -46,10 +46,16 @@ async def endgame(request: Request, uid: UUID):
     return response.text("deleted")
 
 
-# @app.route("/debug")
-# async def debug(request: Request):
-#     pass
-#     return response.text("ok")
+@app.route("/listGames")
+async def listgames(request: Request):
+    return response.json([i for i in gm.games])
+
+
+@app.route("/board/<uid:uuid>")
+async def board(request: Request, uid: UUID):
+    if uid not in gm.games:
+        return response.text("invalid game ID", 400)
+    return response.text(gm.games[uid].game.get_fen())
 
 
 app.run()
