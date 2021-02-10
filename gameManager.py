@@ -3,7 +3,6 @@ from functools import partial
 from typing import Dict, Optional
 from uuid import UUID
 from stockfish import Stockfish
-import stockfish
 import sys
 from classes import ChessGame, GameOptions
 

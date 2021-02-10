@@ -50,7 +50,7 @@ async def endgame(request: Request, uid: UUID):
 
 @app.route(f"{baseurl}/listGames")
 async def listgames(request: Request):
-    return response.json([i for i in gm.games])
+    return response.json([str(i) for i in gm.games])
 
 
 @app.route(f"{baseurl}/board/<uid:uuid>")
