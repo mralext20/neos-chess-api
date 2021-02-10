@@ -1,15 +1,14 @@
 import uuid
-from Chessnut.game import InvalidMove
+from uuid import UUID
 
 import sanic
+from Chessnut.game import InvalidMove
 from sanic import response
 from sanic.request import Request
 
-from config import default_port, baseurl
-
 from classes import GameOptions
+from config import baseurl, default_port
 from gameManager import GameManager
-from uuid import UUID
 
 app = sanic.Sanic(name="Neos Chess Websocket")
 gm = GameManager()
