@@ -1,2 +1,3 @@
-stockfish
-Chessnut
+sanic~=20.12.1
+stockfish~=3.13.0
+Chessnut~=0.3.1
