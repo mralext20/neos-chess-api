@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 from Chessnut import Game as Game
+from stockfish import Stockfish
 
 
 @dataclass
@@ -13,3 +14,4 @@ class GameOptions:
 class ChessGame:
     game: Game = Game()
     opts: GameOptions = GameOptions()
+    stockfish: Stockfish = None

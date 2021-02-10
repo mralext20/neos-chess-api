@@ -4,6 +4,7 @@ from typing import Dict, Optional
 from uuid import UUID
 from stockfish import Stockfish
 import sys
+
 from classes import ChessGame, GameOptions
 
 
@@ -17,12 +18,11 @@ class GameManager:
             exit(-1)
 
     games: Dict[UUID, ChessGame] = {}
-    stockfish_lock = asyncio.Lock()
 
     def start_game(self, uid: UUID, opts: GameOptions) -> ChessGame:
         if opts.ai_is_white is None:
             raise NotImplementedError("not using stockfish is not currently implimented")
-        self.games[uid] = ChessGame()
+        self.games[uid] = ChessGame(stockfish=Stockfish(self.path))
         return self.games[uid]
 
     async def make_move(self, uid: UUID, move: str) -> Optional[str]:
@@ -48,9 +48,8 @@ class GameManager:
         """
         game = self.games[id]
         loop = asyncio.get_running_loop()
-        stockfish = Stockfish()
-        await loop.run_in_executor(None, partial(stockfish.set_fen_position, game.game.get_fen()))
-        await loop.run_in_executor(None, partial(stockfish.set_skill_level, game.opts.ai_diff))
-        move = await loop.run_in_executor(None, stockfish.get_best_move_time)
+        await loop.run_in_executor(None, partial(game.stockfish.set_fen_position, game.game.get_fen()))
+        await loop.run_in_executor(None, partial(game.stockfish.set_skill_level, game.opts.ai_diff))
+        move = await loop.run_in_executor(None, game.stockfish.get_best_move_time)
         game.game.apply_move(move)
         return move
