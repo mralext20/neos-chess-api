@@ -5,7 +5,7 @@ import sanic
 from sanic import response
 from sanic.request import Request
 
-from config import default_port
+from config import default_port, baseurl
 
 from classes import GameOptions
 from gameManager import GameManager
@@ -15,7 +15,7 @@ app = sanic.Sanic(name="Neos Chess Websocket")
 gm = GameManager()
 
 
-@app.route("/newgame", methods=["POST"])
+@app.route(f"{baseurl}/newgame", methods=["POST"])
 async def new_game(request: Request):
     """
     takes body json for the ai's piece color, and the AI's difficulty, as in `{'ai_is_white': false, 'ai_diff': 10}`
@@ -30,7 +30,7 @@ async def new_game(request: Request):
     return response.text(f"{uid} {move}")
 
 
-@app.route("/move/<uid:uuid>/<move:[a-h][1-8][a-h][1-8]>", methods=["POST"])
+@app.route(f"{baseurl}/move/<uid:uuid>/<move:[a-h][1-8][a-h][1-8]>", methods=["POST"])
 async def move(request: Request, uid: UUID, move: str):
     if uid not in gm.games:
         return response.text("invalid game ID", 400)
@@ -40,7 +40,7 @@ async def move(request: Request, uid: UUID, move: str):
         return response.text("invalid move", 400)
 
 
-@app.route("/endgame/<uid:uuid>")
+@app.route(f"{baseurl}/endgame/<uid:uuid>")
 async def endgame(request: Request, uid: UUID):
     if uid not in gm.games:
         return response.text("invalid game ID", 400)
@@ -48,12 +48,12 @@ async def endgame(request: Request, uid: UUID):
     return response.text("deleted")
 
 
-@app.route("/listGames")
+@app.route(f"{baseurl}/listGames")
 async def listgames(request: Request):
     return response.json([i for i in gm.games])
 
 
-@app.route("/board/<uid:uuid>")
+@app.route(f"{baseurl}/board/<uid:uuid>")
 async def board(request: Request, uid: UUID):
     if uid not in gm.games:
         return response.text("invalid game ID", 400)
