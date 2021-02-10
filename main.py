@@ -25,7 +25,7 @@ async def new_game(request: Request):
     uid = uuid.uuid4()
     gm.start_game(uid, opts)
     move = ""
-    if not opts.ai_is_white:
+    if opts.ai_is_white:
         move = await gm.do_ai_move(uid)
     return response.text(f"{uid} {move}")
 
@@ -50,7 +50,7 @@ async def endgame(request: Request, uid: UUID):
 
 @app.route(f"{baseurl}/listGames")
 async def listgames(request: Request):
-    return response.json([str(i) for i in gm.games])
+    return response.json({str(i): gm.games[i].game.get_fen() for i in gm.games})
 
 
 @app.route(f"{baseurl}/board/<uid:uuid>")
