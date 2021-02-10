@@ -24,7 +24,8 @@ class GameManager:
         if opts.ai_is_white is None:
             raise NotImplementedError("not using stockfish is not currently implimented")
         self.games[uid] = ChessGame(
-            stockfish=Stockfish(self.path), timer=asyncio.get_event_loop().create_task(delete_match_in(self, uid))
+            stockfish=Stockfish(self.path),
+            timer=asyncio.get_event_loop().create_task(delete_match_in(self, uid)),
         )
         return self.games[uid]
 
