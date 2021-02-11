@@ -16,6 +16,7 @@ from stockfish import Stockfish
 class GameOptions:
     ai_is_white: Optional[bool] = False
     ai_diff: int = 10
+    ai_think_time: int = 1000
 
 
 @dataclass
