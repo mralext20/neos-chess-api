@@ -1,4 +1,4 @@
-from dataclasses import dataclass, Field
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -20,8 +20,8 @@ class GameOptions:
 
 @dataclass
 class ChessGame:
-    game: Game = Field(default_factory=Game)
-    opts: GameOptions = Field(default_factory=GameOptions)
+    game: Game = field(default_factory=Game)
+    opts: GameOptions = field(default_factory=GameOptions)
     stockfish: Stockfish = None
     timer: asyncio.Task = None
 
