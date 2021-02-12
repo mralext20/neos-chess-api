@@ -44,6 +44,8 @@ class GameManager:
 
         if game.opts.ai_is_white is not None:
             ai_move = await self.do_ai_move(uid)
+            # lookup game again after being modified by do_ai_move
+            game = self.games[uid]
             if game.game.status == game.game.CHECKMATE or game.game.status == game.game.STALEMATE:
                 del self.games[uid]
             return ai_move

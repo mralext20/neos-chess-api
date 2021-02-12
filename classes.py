@@ -8,7 +8,7 @@ import asyncio
 from typing import Optional
 from uuid import UUID
 
-from Chessnut import Game as Game
+from Chessnut import Game
 from stockfish import Stockfish
 
 
