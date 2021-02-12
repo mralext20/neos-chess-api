@@ -38,7 +38,7 @@ class GameManager:
         game.timer.cancel()
         game.timer = asyncio.get_event_loop().create_task(delete_match_in(self, uid))
         game.game.apply_move(move)
-        if game.game.status == game.game.CHECKMATE or game.game.status == game.game.STALEMATE:
+        if self.is_game_over(game):
             del self.games[uid]
             return
 
@@ -46,9 +46,17 @@ class GameManager:
             ai_move = await self.do_ai_move(uid)
             # lookup game again after being modified by do_ai_move
             game = self.games[uid]
-            if game.game.status == game.game.CHECKMATE or game.game.status == game.game.STALEMATE:
+            if self.is_game_over(game):
                 del self.games[uid]
             return ai_move
+
+    @staticmethod
+    def is_game_over(game: ChessGame) -> bool:
+        return (
+            game.game.status == game.game.CHECKMATE
+            or game.game.status == game.game.STALEMATE
+            or not len([p for p in game.game.board._position if p != ' ']) > 2
+        )
 
     async def do_ai_move(self, id: UUID) -> str:
         """
