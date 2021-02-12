@@ -29,7 +29,7 @@ async def new_game(request: Request):
     return response.text(f"{uid} {move}")
 
 
-@app.route(f"{baseurl}/move/<uid:uuid>/<move:[a-h][1-8][a-h][1-8]>", methods=["POST"])
+@app.route(f"{baseurl}/move/<uid:uuid>/<move:[a-h][1-8][a-h][1-8][r,b,q,n]?>", methods=["POST"])
 async def move(request: Request, uid: UUID, move: str):
     if uid not in gm.games:
         return response.text("invalid game ID", 400)
