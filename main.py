@@ -1,3 +1,4 @@
+import asyncio
 import uuid
 from uuid import UUID
 
@@ -5,8 +6,8 @@ import sanic
 from Chessnut.game import InvalidMove
 from sanic import response
 from sanic.request import Request
-
-from classes import GameOptions
+from websockets.protocol import WebSocketCommonProtocol
+from classes import ChessGame, GameOptions
 from config import baseurl, default_port
 from gameManager import GameManager
 
@@ -57,6 +58,18 @@ async def board(request: Request, uid: UUID):
     if uid not in gm.games:
         return response.text("invalid game ID", 400)
     return response.text(gm.games[uid].game.get_fen())
+
+
+@app.websocket(f'{baseurl}/spectate/<uid:uuid>')
+async def spectate(request: Request, ws: WebSocketCommonProtocol, uid: UUID):
+    async def informMoves(game: ChessGame):
+        await ws.send(game.game.get_fen())
+
+    game = gm.games[uid]
+    game.subscribers.append(informMoves)
+    await ws.send(game.game.get_fen())
+    while uid in gm.games.keys():
+        await asyncio.sleep(10)
 
 
 if __name__ == "__main__":

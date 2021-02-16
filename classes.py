@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import Coroutine, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from gameManager import GameManager
@@ -25,6 +25,7 @@ class ChessGame:
     opts: GameOptions = field(default_factory=GameOptions)
     stockfish: Stockfish = None
     timer: asyncio.Task = None
+    subscribers: List[Coroutine] = field(default_factory=list)
 
 
 async def delete_match_in(gm: "GameManager", uid: UUID, seconds=3600):

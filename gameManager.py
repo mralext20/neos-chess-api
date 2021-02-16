@@ -34,10 +34,12 @@ class GameManager:
         returns the move the computer makes in response, or None if against another player.
         raises InvalidMove when the move is Invalid.
         """
+        loop = asyncio.get_event_loop()
         game = self.games[uid]
         game.timer.cancel()
         game.timer = asyncio.get_event_loop().create_task(delete_match_in(self, uid))
         game.game.apply_move(move)
+        [loop.create_task(inform(game)) for inform in game.subscribers]
         if self.is_game_over(game):
             self.games[uid].timer.cancel()
             del self.games[uid]
@@ -47,6 +49,7 @@ class GameManager:
             ai_move = await self.do_ai_move(uid)
             # lookup game again after being modified by do_ai_move
             game = self.games[uid]
+            [loop.create_task(inform(game)) for inform in game.subscribers]
             if self.is_game_over(game):
                 self.games[uid].timer.cancel()
                 del self.games[uid]
