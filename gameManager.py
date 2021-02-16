@@ -39,6 +39,7 @@ class GameManager:
         game.timer = asyncio.get_event_loop().create_task(delete_match_in(self, uid))
         game.game.apply_move(move)
         if self.is_game_over(game):
+            self.games[uid].timer.cancel()
             del self.games[uid]
             return
 
@@ -47,6 +48,7 @@ class GameManager:
             # lookup game again after being modified by do_ai_move
             game = self.games[uid]
             if self.is_game_over(game):
+                self.games[uid].timer.cancel()
                 del self.games[uid]
             return ai_move
 
